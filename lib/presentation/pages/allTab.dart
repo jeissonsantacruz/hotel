@@ -1,27 +1,22 @@
 // Flutter dependencies
-
 import 'package:flutter/material.dart';
 import 'package:hotel/data/datasources/providerRoom_datasource.dart';
 import 'package:hotel/data/models/room_model.dart';
 import 'package:hotel/presentation/widgets/customCard_widget.dart';
 import 'package:hotel/presentation/widgets/percentIndicator_widget.dart';
 
-class PendingTab extends StatefulWidget {
-  final Function function;
-  PendingTab(this.function);
+class AllTab extends StatefulWidget {
   @override
-  _PendingTabState createState() => _PendingTabState();
+  _AllTabState createState() => _AllTabState();
 }
 
-class _PendingTabState extends State<PendingTab> {
+class _AllTabState extends State<AllTab> {
   final TextEditingController feedController = new TextEditingController();
 
   final servicios = ServiciosGestionCci();
 
   @override
   Widget build(BuildContext context) {
-    
-
     final size = MediaQuery.of(context).size;
     return Column(
       children: [
@@ -63,8 +58,8 @@ class _PendingTabState extends State<PendingTab> {
                     child: ListView.builder(
                         itemCount: diligenciauctos.length,
                         itemBuilder: (context, i) =>
-                            diligenciauctos[i].status != 'CLEANED'?
-                            CustomCard(diligenciauctos[i], true,widget.function):Container()),
+                           
+                            CustomCard(diligenciauctos[i], true,null)),
                   );
                 } else {
                   return Center(

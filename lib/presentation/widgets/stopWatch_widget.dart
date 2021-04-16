@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hotel/data/datasources/providerRoom_datasource.dart';
+
 import 'dart:async';
+
+import 'customButtom_widget.dart';
 
 class ElapsedTime {
   final int hundreds;
@@ -14,9 +19,10 @@ class ElapsedTime {
 }
 
 class Dependencies {
-
-  final List<ValueChanged<ElapsedTime>> timerListeners = <ValueChanged<ElapsedTime>>[];
-  final TextStyle textStyle = const TextStyle(fontSize: 20.0, fontFamily: "Bebas Neue");
+  final List<ValueChanged<ElapsedTime>> timerListeners =
+      <ValueChanged<ElapsedTime>>[];
+  final TextStyle textStyle =
+      const TextStyle(fontSize: 50.0, fontFamily: "Bebas Neue");
   final Stopwatch stopwatch = new Stopwatch();
   final int timerMillisecondsRefreshRate = 30;
 }
@@ -29,32 +35,119 @@ class TimerPage extends StatefulWidget {
 
 class TimerPageState extends State<TimerPage> {
   final Dependencies dependencies = new Dependencies();
+  final services = ServiciosGestionCci();
 
   void leftButtonPressed() {
     setState(() {
       if (dependencies.stopwatch.isRunning) {
-        print("${dependencies.stopwatch.elapsedMilliseconds}");
+        print("${dependencies.stopwatch.elapsed.inSeconds}");
       } else {
-        dependencies.stopwatch.reset();
+            _onButtonPressed(context,finishModalSheet());
+      
       }
     });
+  }
+  void sendUpdateStatus()async{
+      var milliseconds = dependencies.stopwatch.elapsedMilliseconds;
+        final int hundreds = (milliseconds / 10).truncate();
+        final int seconds = (hundreds / 100).truncate();
+        final int minutes = (seconds / 60).truncate();
+
+        await services.updatestatus('CLEANED', '${minutes}m ${seconds}s');
+        dependencies.stopwatch.reset();
   }
 
   void rightButtonPressed() {
     setState(() {
       if (dependencies.stopwatch.isRunning) {
-        dependencies.stopwatch.stop();
+        _onButtonPressed(context,buildModalSheet());
       } else {
         dependencies.stopwatch.start();
       }
     });
   }
 
-  Widget buildFloatingButton(String text, VoidCallback callback) {
-    TextStyle roundTextStyle = const TextStyle(fontSize: 16.0, color: Colors.white);
-    return new FloatingActionButton(
-      child: new Text(text, style: roundTextStyle),
-      onPressed: callback);
+  void continueButtomPressed() {
+    setState(() {
+      dependencies.stopwatch.start();
+    });
+  }
+
+  void pauseontinueButtomPressed() {
+    setState(() {
+      dependencies.stopwatch.stop();
+    });
+  }
+
+  void _onButtonPressed(BuildContext context, Widget widget) {
+    final size = MediaQuery.of(context).size;
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            color: Color(0xFF737373),
+            height: size.height * 0.4,
+            child: Container(
+              padding: EdgeInsets.all(30),
+              child: widget,
+              decoration: BoxDecoration(
+                color: Theme.of(context).canvasColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(30),
+                  topRight: const Radius.circular(30),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  Widget buildFloatingButton(
+      String text, VoidCallback callback, List<Color> colors, IconData icon) {
+    return new MyCustomButtoms(
+        icon: icon, hintText: text, colors: colors, onPressed: callback);
+  }
+
+  Widget buildModalSheet() {
+    return Center(
+      child: new Column(
+        children: [
+          Text(
+            'Confirm Action\n',
+            style: TextStyle(fontSize: 24),
+          ),
+          Text(
+              'The room activity will be paused.\n What would you like to do?\n',
+              style: TextStyle(fontSize: 16)),
+          buildFloatingButton(
+              "PAUSE",
+              pauseontinueButtomPressed,
+              [Colors.orangeAccent[400], Colors.orangeAccent[700]],
+              FontAwesomeIcons.pause),
+        ],
+      ),
+    );
+  }
+
+  Widget finishModalSheet() {
+    return Center(
+      child: new Column(
+        children: [
+          Text(
+            'Confirm Action\n',
+            style: TextStyle(fontSize: 24),
+          ),
+          Text(
+              'The room activity will be finished.\n What would you like to do?\n',
+              style: TextStyle(fontSize: 16)),
+          buildFloatingButton(
+              "COMPLETE",
+              sendUpdateStatus,
+              [Colors.greenAccent[400], Colors.greenAccent[700]],
+              FontAwesomeIcons.checkCircle),
+        ],
+      ),
+    );
   }
 
   @override
@@ -62,18 +155,43 @@ class TimerPageState extends State<TimerPage> {
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
+        Container(
+            height: 300,
+            child: Card(
+                child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  new Text('In Progress'),
+                  new TimerText(dependencies: dependencies),
+                  new Text('Room 10054'),
+                  new Text('individual')
+                ],
+              ),
+            ))),
         new Expanded(
-          child: new TimerText(dependencies: dependencies),
-        ),
-        new Expanded(
-          flex: 0,
           child: new Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: new Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            child: new Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                buildFloatingButton(dependencies.stopwatch.isRunning ? "lap" : "reset", leftButtonPressed),
-                buildFloatingButton(dependencies.stopwatch.isRunning ? "stop" : "start", rightButtonPressed),
+                buildFloatingButton(
+                    dependencies.stopwatch.isRunning ? "PAUSE" : "CONTINUE",
+                    rightButtonPressed,
+                    [Colors.orangeAccent[400], Colors.orangeAccent[700]],
+                    dependencies.stopwatch.isRunning
+                        ? FontAwesomeIcons.pause
+                        : FontAwesomeIcons.play),
+                buildFloatingButton(
+                    "CREATE EVENT",
+                    null,
+                    [Colors.yellowAccent[400], Colors.yellowAccent[700]],
+                    FontAwesomeIcons.plus),
+                buildFloatingButton(
+                    "COMPLETE",
+                    leftButtonPressed,
+                    [Colors.greenAccent[400], Colors.greenAccent[700]],
+                    FontAwesomeIcons.check),
               ],
             ),
           ),
@@ -87,7 +205,8 @@ class TimerText extends StatefulWidget {
   TimerText({this.dependencies});
   final Dependencies dependencies;
 
-  TimerTextState createState() => new TimerTextState(dependencies: dependencies);
+  TimerTextState createState() =>
+      new TimerTextState(dependencies: dependencies);
 }
 
 class TimerTextState extends State<TimerText> {
@@ -98,7 +217,9 @@ class TimerTextState extends State<TimerText> {
 
   @override
   void initState() {
-    timer = new Timer.periodic(new Duration(milliseconds: dependencies.timerMillisecondsRefreshRate), callback);
+    timer = new Timer.periodic(
+        new Duration(milliseconds: dependencies.timerMillisecondsRefreshRate),
+        callback);
     super.initState();
   }
 
@@ -131,18 +252,18 @@ class TimerTextState extends State<TimerText> {
     return new Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-          new RepaintBoundary(
-            child: new SizedBox(
-              height: 100.0,
-              child: new MinutesAndSeconds(dependencies: dependencies),
-            ),
+        new RepaintBoundary(
+          child: new SizedBox(
+            height: 60.0,
+            child: new MinutesAndSeconds(dependencies: dependencies),
           ),
-          new RepaintBoundary(
-            child: new SizedBox(
-              height: 100.0,
-              child: new Hundreds(dependencies: dependencies),
-            ),
+        ),
+        new RepaintBoundary(
+          child: new SizedBox(
+            height: 60.0,
+            child: new Hundreds(dependencies: dependencies),
           ),
+        ),
       ],
     );
   }
@@ -152,7 +273,8 @@ class MinutesAndSeconds extends StatefulWidget {
   MinutesAndSeconds({this.dependencies});
   final Dependencies dependencies;
 
-  MinutesAndSecondsState createState() => new MinutesAndSecondsState(dependencies: dependencies);
+  MinutesAndSecondsState createState() =>
+      new MinutesAndSecondsState(dependencies: dependencies);
 }
 
 class MinutesAndSecondsState extends State<MinutesAndSeconds> {

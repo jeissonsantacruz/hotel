@@ -32,7 +32,7 @@ class MyCustomButtoms extends StatelessWidget {
               child: Center(
                 child: ListTile(
                   leading: Icon(icon, color: Colors.white),
-                  title: Text(hintText,
+                  title: Text('             '+hintText,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold)),
                 ),

@@ -32,16 +32,16 @@ class CustomCard extends StatelessWidget {
           child: Card(
               elevation: 2,
               child: ListTile(
-                title: Text(_room.name),
+                title: Text(_room.name,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18)),
                 subtitle: Text(_room.type),
                 trailing: _room.time == null
                     ? Icon(
                         Icons.chevron_right,
                         color: Color(0xFF0A2140),
                       )
-                    : Icon(
-                        Icons.check,
-                        semanticLabel: _room.time,
+                    : Text( _room.time+
+                    
+                       '\u{2714}',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
                       ),
               )),
         ));

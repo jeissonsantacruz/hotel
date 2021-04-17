@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'dart:convert';
 
@@ -21,11 +20,17 @@ class ServiciosGestionCci {
     return _rooms;
   }
 
-   Future updatestatus(String status, String time) async {
-    var data = {"funcionphp": "updateStatus", "dispositivo": "movil","status":status,"time":time};
+  Future updatestatus(String status, String time, String oidroom) async {
+    var data = {
+      "funcionphp": "updateStatus",
+      "dispositivo": "movil",
+      "status": status,
+      "time": time,
+      "oidroom":oidroom
+    };
     var dio = Dio();
     final encodedData = FormData.fromMap(data);
-     Response response= await dio.post(urlTest, data: encodedData);
+    Response response = await dio.post(urlTest, data: encodedData);
     print(response.statusCode.toString());
   }
 }

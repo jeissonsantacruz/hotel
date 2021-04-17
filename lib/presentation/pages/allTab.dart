@@ -40,7 +40,7 @@ class _AllTabState extends State<AllTab> {
                     width: 340,
                     padding: EdgeInsets.all(30),
                     child: Column(
-                      children: [Text('Total Rooms'), Text('8')],
+                      children: [Text('Total Rooms',style: TextStyle(fontSize: 16)), Text('10',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 28))],
                     ),
                   )),
             ],
@@ -49,8 +49,8 @@ class _AllTabState extends State<AllTab> {
         Expanded(
           child: FutureBuilder(
               future: servicios.listrooms(), // llamado al servicio
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<Room>> snapshot) {
+              builder:
+                  (BuildContext context, AsyncSnapshot<List<Room>> snapshot) {
                 if (snapshot.hasData && snapshot.data.isNotEmpty) {
                   final diligenciauctos = snapshot.data;
 
@@ -58,13 +58,10 @@ class _AllTabState extends State<AllTab> {
                     child: ListView.builder(
                         itemCount: diligenciauctos.length,
                         itemBuilder: (context, i) =>
-                           
-                            CustomCard(diligenciauctos[i], true,null)),
+                            CustomCard(diligenciauctos[i], true, null)),
                   );
                 } else {
-                  return Center(
-                    child: CircularProgressIndicator()
-                  );
+                  return Center(child: CircularProgressIndicator());
                 }
               }),
         ),

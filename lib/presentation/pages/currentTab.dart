@@ -46,33 +46,93 @@ class _CurrentTabState extends State<CurrentTab> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10.0),
                             ),
-                            child: roomStatus.status?Container(
-                              width: 340,
-                              padding: EdgeInsets.all(30),
-                              child: Column(
-                                children: [
-                                  Text('Next Assigment'),
-                                  Text('Room 10054'),
-                                  Text('Individual')
-                                ],
-                              ),
-                            ):Text('Not current room selected')),
+                            child: roomStatus.status
+                                ? Container(
+                                    width: 340,
+                                    padding: EdgeInsets.all(30),
+                                    child: Column(
+                                      children: [
+                                        Text('Next Assigment',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w900,
+                                                fontSize: 18,
+                                                color: Colors.grey)),
+                                        Text(widget.room.name,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 32)),
+                                        Text('Individual')
+                                      ],
+                                    ),
+                                  )
+                                : Text('Not current room selected',style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 17))),
                       ],
                     ),
                   ),
-                  roomStatus.status?MyCustomButtoms(
-                    icon: FontAwesomeIcons.play,
-                    hintText: 'START CLEANING',
-                    colors: [Colors.greenAccent[400], Colors.greenAccent[700]],
-                    onPressed: () {
-                      setState(() {
-                        status = true;
-                      });
-                    },
+                  roomStatus.status
+                      ? MyCustomButtoms(
+                          icon: FontAwesomeIcons.play,
+                          hintText: 'START CLEANING',
+                          colors: [
+                            Colors.greenAccent[400],
+                            Colors.greenAccent[700]
+                          ],
+                          onPressed: () {
+                            setState(() {
+                              status = true;
+                            });
+                          },
+                        )
+                      : Container(),
+                  roomStatus.status?Expanded(
+                    child: ListView(
+                      children: [
+                        ListTile(
+                          trailing: Text('Arrived',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 17)),
+                          leading:
+                              Text('Status', style: TextStyle(fontSize: 17)),
+                        ),
+                        ListTile(
+                          trailing: Text(widget.room.credits,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 17)),
+                          leading:
+                              Text('Credits', style: TextStyle(fontSize: 17)),
+                        ),
+                        ListTile(
+                          trailing: Text(widget.room.guest,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 17)),
+                          leading:
+                              Text('Guest', style: TextStyle(fontSize: 17)),
+                        ),
+                        ListTile(
+                          trailing: Text(widget.room.checkin,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 17)),
+                          leading:
+                              Text('Check in', style: TextStyle(fontSize: 17)),
+                        ),
+                        ListTile(
+                          trailing: Text(widget.room.checkout,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 17)),
+                          leading:
+                              Text('Check out', style: TextStyle(fontSize: 17)),
+                        )
+                      ],
+                    ),
                   ):Container(),
                 ],
               ),
-        status ? TimerPage() : Container(),
+        status
+            ? TimerPage(
+                room: roomStatus.room,
+              )
+            : Container(),
       ],
     );
   }

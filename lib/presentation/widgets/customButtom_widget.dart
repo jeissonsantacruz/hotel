@@ -20,7 +20,7 @@ class MyCustomButtoms extends StatelessWidget {
       child: Ink(
           decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: colors,
+                colors:colors,
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),

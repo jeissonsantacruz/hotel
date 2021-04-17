@@ -88,7 +88,7 @@ class _HomeRoomsUserState extends State<HomeRoomsUser>
                             Tab(text: "All"),
                             Tab(text: "Current"),
                             Tab(text: "Pending"),
-                            Tab(text: "Cleaned"),
+                            Tab(text: "Cleaned" ),
                           ],
                         ),
                       ),

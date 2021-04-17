@@ -17,63 +17,81 @@ class _PendingTabState extends State<PendingTab> {
   final TextEditingController feedController = new TextEditingController();
 
   final servicios = ServiciosGestionCci();
+  List<Room> roomList = [];
 
   @override
   Widget build(BuildContext context) {
-    
-
     final size = MediaQuery.of(context).size;
-    return Column(
-      children: [
-        Card(
-          color: Colors.white70,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(50, 10, 50, 10),
-                child: Text('MY PROGRESS'),
-              ),
-              PercentIndicator(),
-              SizedBox(height: 30),
-              Card(
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: Container(
-                    width: 340,
-                    padding: EdgeInsets.all(30),
-                    child: Column(
-                      children: [Text('Total Rooms'), Text('8')],
-                    ),
-                  )),
-            ],
-          ),
-        ),
-        Expanded(
-          child: FutureBuilder(
-              future: servicios.listrooms(), // llamado al servicio
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<Room>> snapshot) {
-                if (snapshot.hasData && snapshot.data.isNotEmpty) {
-                  final diligenciauctos = snapshot.data;
+    return RefreshIndicator(
+      onRefresh: () {
+        return Future.delayed(Duration(seconds: 1), () {
+          setState(() async {
+            roomList = await servicios.listrooms();
+          });
+        }
+            // showing snackbar
 
-                  return Container(
-                    child: ListView.builder(
-                        itemCount: diligenciauctos.length,
-                        itemBuilder: (context, i) =>
-                            diligenciauctos[i].status != 'CLEANED'?
-                            CustomCard(diligenciauctos[i], true,widget.function):Container()),
-                  );
-                } else {
-                  return Center(
-                    child: CircularProgressIndicator()
-                  );
-                }
-              }),
-        ),
-      ],
+            );
+      },
+      child: Column(
+        children: [
+          Card(
+            color: Colors.white70,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(50, 10, 50, 10),
+                  child: Text('MY PROGRESS'),
+                ),
+                PercentIndicator(),
+                SizedBox(height: 30),
+                Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Container(
+                      width: 340,
+                      padding: EdgeInsets.all(30),
+                      child: Column(
+                        children: [Text('Total Rooms'), Text('8')],
+                      ),
+                    )),
+              ],
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder(
+                future: servicios.listrooms(), // llamado al servicio
+                builder:
+                    (BuildContext context, AsyncSnapshot<List<Room>> snapshot) {
+                  if (snapshot.hasData && snapshot.data.isNotEmpty) {
+                    roomList = snapshot.data;
+
+                    return Container(
+                      child: ListView.builder(
+                          itemCount: roomList.length,
+                          itemBuilder: (context, i) => roomList[i].status !=
+                                  'CLEANED'
+                              ? CustomCard(roomList[i], true, widget.function)
+                              : Container()),
+                    );
+                  } else {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                }),
+          ),
+        ],
+      ),
     );
+  }
+
+  onRefresh() {
+    return Future.delayed(Duration(seconds: 1), () {
+      setState(() async {
+        roomList = await servicios.listrooms();
+      });
+    });
   }
 }

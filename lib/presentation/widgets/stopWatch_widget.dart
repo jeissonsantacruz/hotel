@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hotel/data/datasources/providerRoom_datasource.dart';
+import 'package:hotel/data/models/room_model.dart';
+import 'package:hotel/presentation/pages/homeUserRooms.dart';
+import 'package:hotel/presentation/provider/statusRoom_provider.dart';
+import 'package:provider/provider.dart';
 
 import 'dart:async';
 
@@ -28,7 +32,8 @@ class Dependencies {
 }
 
 class TimerPage extends StatefulWidget {
-  TimerPage({Key key}) : super(key: key);
+  final Room room;
+  TimerPage({Key key, this.room}) : super(key: key);
 
   TimerPageState createState() => new TimerPageState();
 }
@@ -42,25 +47,30 @@ class TimerPageState extends State<TimerPage> {
       if (dependencies.stopwatch.isRunning) {
         print("${dependencies.stopwatch.elapsed.inSeconds}");
       } else {
-            _onButtonPressed(context,finishModalSheet());
-      
+        _onButtonPressed(context, finishModalSheet());
       }
     });
   }
-  void sendUpdateStatus()async{
-      var milliseconds = dependencies.stopwatch.elapsedMilliseconds;
-        final int hundreds = (milliseconds / 10).truncate();
-        final int seconds = (hundreds / 100).truncate();
-        final int minutes = (seconds / 60).truncate();
 
-        await services.updatestatus('CLEANED', '${minutes}m ${seconds}s');
-        dependencies.stopwatch.reset();
+  void sendUpdateStatus() async {
+    var milliseconds = dependencies.stopwatch.elapsedMilliseconds;
+    final int hundreds = (milliseconds / 10).truncate();
+    final int seconds = (hundreds / 100).truncate();
+    final int minutes = (seconds / 60).truncate();
+
+    await services
+        .updatestatus('CLEANED', '${minutes}m ${seconds}s', widget.room.value)
+        .then((value) => Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => HomeRoomsUser()),
+            ModalRoute.withName("/homerooms")));
+    dependencies.stopwatch.reset();
   }
 
   void rightButtonPressed() {
     setState(() {
       if (dependencies.stopwatch.isRunning) {
-        _onButtonPressed(context,buildModalSheet());
+        _onButtonPressed(context, buildModalSheet());
       } else {
         dependencies.stopwatch.start();
       }
@@ -152,6 +162,8 @@ class TimerPageState extends State<TimerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final roomModel = Provider.of<StatusRoom>(context);
+
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
